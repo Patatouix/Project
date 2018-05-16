@@ -28,3 +28,8 @@ Route::get('article/tag/{tag}', 'ArticleController@indexTag');
 Route::resource('command', 'CommandController', ['except' => ['create', 'store']]);
 Route::get('command/create/{article}', 'CommandController@create')->name('command.create');
 Route::get('command/store/{article}', 'CommandController@store')->name('command.store');
+
+Route::resource('animal', 'AnimalController');
+
+Route::resource('rdv', 'RdvController');
+Route::get('rdv/{rdv}/confirm', 'RdvController@confirm')->name('rdv.confirm');

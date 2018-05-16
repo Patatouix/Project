@@ -1,4 +1,4 @@
-@extends('user.template')
+@extends('template')
 
 @section('contenu')
     <div class="col-sm-offset-4 col-sm-4">
@@ -23,12 +23,13 @@
 							</label>
 						</div>
 					</div>
-						{!! Form::submit('Envoyer', ['class' => 'btn btn-primary pull-right']) !!}
+						{!! Form::submit('Envoyer', ['class' => 'btn btn-warning']) !!}
 					{!! Form::close() !!}
 				</div>
 			</div>
 		</div>
-		<a href="{{ url('article') }}" class="btn btn-primary float-left">
+		<br>
+		<a href="{{ url('user') }}" class="btn btn-primary">
 			<span class="glyphicon glyphicon-circle-arrow-left"></span> Retour
 		</a>
 	</div>

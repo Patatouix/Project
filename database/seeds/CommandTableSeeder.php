@@ -14,15 +14,15 @@ class CommandTableSeeder extends Seeder {
 	{
 		DB::table('commands')->delete();
 		
-		for($i = 0; $i < 25; ++$i)
+		for($i = 1; $i < 26; ++$i)
 		{
 			$date = $this->randDate();
 			DB::table('commands')->insert(array(
-					'created_at' => $date,
-					'updated_at' => $date,
-					'id_user' => rand(1, 10),
-					'id_article' => rand(1, 50),
-				));
+				'created_at' => $date,
+				'updated_at' => $date,
+				'id_user' => rand(1, 10),
+				'id_article' => rand(1, 50),
+			));
 		}
 	}
 }

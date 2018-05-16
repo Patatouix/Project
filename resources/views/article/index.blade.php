@@ -1,4 +1,4 @@
-@extends('article.template')
+@extends('template')
 
 @section('contenu')
 	@if(Auth::check() and Auth::user()->admin)
@@ -82,7 +82,7 @@
 					@endforeach
 				</tbody>
 			</table>
-			{!! $links !!}
+			{{ $links = $articles->render( "pagination::bootstrap-4") }}
 		</div>
 	</div>
 @endsection

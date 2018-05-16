@@ -16,7 +16,7 @@ class CommandController extends Controller
     protected $tagRepository;
     protected $commandRepository;
 
-    protected $nbrPerPage = 5;
+    protected $nbrPerPage = 6;
 
     public function __construct(ArticleRepository $articleRepository, CommandRepository $commandRepository)
     {
@@ -30,7 +30,7 @@ class CommandController extends Controller
     public function index()
     {
         if(Auth::user()->admin) {
-            $commands = $this->commandRepository->getAllPaginate(Auth::user()->id, $this->nbrPerPage);
+            $commands = $this->commandRepository->getAllPaginate($this->nbrPerPage);
             $links = $commands->render();
             return view('command.index', compact('commands', 'links'));
         }

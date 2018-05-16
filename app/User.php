@@ -36,4 +36,14 @@ class User extends Authenticatable
     {
     return $this->hasMany('App\Command');
     }
+
+    public function rdvs() 
+    {
+    return $this->hasMany('App\Rdv');
+    }
+
+    public function animals() 
+    {
+    return $this->hasMany('App\Animal');
+    }
 }

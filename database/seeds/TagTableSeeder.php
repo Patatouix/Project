@@ -18,11 +18,11 @@ class TagTableSeeder extends Seeder {
 		{
 			$date = $this->randDate();
 			DB::table('tags')->insert(array(
-					'tag' => 'tag' . $i,
-					'tag_url' => 'tag' . $i,
-					'created_at' => $date,
-					'updated_at' => $date
-				));
+				'tag' => 'tag' . $i,
+				'tag_url' => 'tag' . $i,
+				'created_at' => $date,
+				'updated_at' => $date
+			));
 		}
 	}
 }

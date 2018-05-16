@@ -25,10 +25,11 @@ class ArticleCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|max:100|unique:articles',
-            'short_description' => 'required|string|max:255'
+            'short_description' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'price' => 'required|numeric',
             'image' => 'required|URL',
+            'id_tag' => 'required'
         ];
     }
 }

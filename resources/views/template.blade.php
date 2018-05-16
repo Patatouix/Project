@@ -16,28 +16,26 @@
   	<div class="wrapper" style="min-height: 100%; margin-bottom: -70px;">
 	    <header class="jumbotron">
 	      <div class="container">
-	      		@if(Auth::check())
-	      			@if(Auth::user()->admin)
-	      				<p>Bienvenue, {{ Auth::user()->name }} (admin)</p>
-	      				
-	      				<div class="btn-group float-right">
-							{!! link_to('logout', 'Deconnexion', ['class' => 'btn btn-warning']) !!}
-						</div>
-	      			@else
-	      				<p>Bienvenue, {{ Auth::user()->name }} (client)</p>
-	      				
-	      				<div class="btn-group float-right">
-							{!! link_to('logout', 'Deconnexion', ['class' => 'btn btn-warning']) !!}
-						</div>
-	      			@endif
-	      		@else
-	      			<p>Bienvenue, invité</p>
-
-	      			<div class="btn-group float-right">
-	      				{!! link_to('login', 'Se connecter', ['class' => 'btn btn-info pull-right']) !!}
-	      			</div>
-	      		@endif
-	        <h1 class="page-header">{!! link_to_route('article.index', 'Catalogue') !!}</h1>
+      		@if(Auth::check())
+      			@if(Auth::user()->admin)
+      				<p>Bienvenue, {{ Auth::user()->name }} (admin)</p>	      			
+      			@else
+      				<p>Bienvenue, {{ Auth::user()->name }} (client)</p>
+      			@endif
+      			<div class="btn-group float-right">
+						{!! link_to('logout', 'Deconnexion', ['class' => 'btn btn-warning']) !!}
+				</div>
+      		@else
+      			<p>Bienvenue, invité</p>
+      			<div class="btn-group float-right">
+      				{!! link_to('login', 'Se connecter', ['class' => 'btn btn-info pull-right']) !!}
+      			</div>
+      		@endif
+      		<h2 class="page-header">{!! link_to_route('user.index', 'Utilisateurs') !!}</h2>
+        	<h2 class="page-header">{!! link_to_route('article.index', 'Catalogue') !!}</h2>
+	        <h2 class="page-header">{!! link_to_route('command.index', 'Commandes') !!}</h2>
+	        <h2 class="page-header">{!! link_to_route('animal.index', 'Animaux') !!}</h2>
+	        <h2 class="page-header">{!! link_to_route('rdv.index', 'Rendez-vous') !!}</h2>
 	        @yield('header')
 	      </div>
 	    </header>

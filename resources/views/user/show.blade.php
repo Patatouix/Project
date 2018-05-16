@@ -1,4 +1,4 @@
-@extends('user.template')
+@extends('template')
 
 @section('contenu')
     <div class="col-sm-offset-4 col-sm-4">
@@ -13,7 +13,7 @@
 				@endif
 			</div>
 		</div>				
-		<a href="javascript:history.back()" class="btn btn-primary">
+		<a href="{{ url('user') }}" class="btn btn-primary">
 			<span class="glyphicon glyphicon-circle-arrow-left"></span> Retour
 		</a>
 	</div>

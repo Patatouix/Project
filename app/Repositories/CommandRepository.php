@@ -18,7 +18,7 @@ class CommandRepository {
 		return $this->command->where('id_user', $id)->orderBy('commands.created_at', 'desc');		
 	}
 
-	private function getAll($id)
+	private function getAll()
 	{
 		return $this->command->orderBy('commands.status', 'asc');		
 	}
@@ -28,9 +28,9 @@ class CommandRepository {
 		return $this->getAllByUser($id)->paginate($n);
 	}
 
-	public function getAllPaginate($id, $n)
+	public function getAllPaginate($n)
 	{
-		return $this->getAll($id)->paginate($n);
+		return $this->getAll()->paginate($n);
 	}
 
 	public function getByTagPaginate($tag, $n)

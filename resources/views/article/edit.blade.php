@@ -1,4 +1,4 @@
-@extends('article.template')
+@extends('template')
 
 @section('contenu')
     <div class="col-sm-offset-6 col-sm-6">
@@ -44,7 +44,7 @@
 				</div>
 			</div>
 		</div>
-		<a href="{{ url('article') }}" class="btn btn-primary float-left">
+		<a href="{{ url('article') }}" class="btn btn-primary">
 			<span class="glyphicon glyphicon-circle-arrow-left"></span> Retour
 		</a>
 	</div>

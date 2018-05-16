@@ -1,4 +1,4 @@
-@extends('article.template')
+@extends('template')
 
 @section('contenu')
     <div class="col-sm-offset-4 col-sm-5">
@@ -33,7 +33,7 @@
 			</tbody>
 		</table>	
 		<br />		
-		<a href="javascript:history.back()" class="btn btn-primary">
+		<a href="{{ url('article') }}" class="btn btn-primary">
 			<span class="glyphicon glyphicon-circle-arrow-left"></span> Retour
 		</a>
 		<br />

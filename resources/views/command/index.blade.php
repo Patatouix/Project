@@ -1,4 +1,4 @@
-@extends('command.template')
+@extends('template')
 
 @section('contenu')
 	@if(Auth::check())
@@ -26,6 +26,7 @@
 							<th scope="col">Auteur</th>
 							<th scope="col">Date création</th>
 							<th scope="col">Article</th>
+							<th scope="col">Aperçu</th>
 							<th scope="col">Statut</th>
 							<th scope="col">Date retrait</th>
 							<th scope="col"></th>
@@ -36,9 +37,10 @@
 						@foreach($commands as $command)
 							<tr>	
 								<td>{{$command->id}}</td>
-								<td>{{$command->user()->first()->name}}</td>
+								<td>{{$command->user->name}}</td>
 								<td>{{$command->created_at}}</td>
-								<td>{{$command->articles()->first()->name}}</td>
+								<td>{{$command->articles->name}}</td>
+								<td><img src="{{$command->articles->image}}"</td>
 								@if($command->status == 'En attente de validation')
 									<td style="color: red;">{{$command->status}}</td>
 								@else
@@ -68,7 +70,7 @@
 				<div class="alert alert-success alert-dismissible">Vous n'avez pas de commandes. Vous pouvez créer une nouvelle commande en cliquant sur "Catalogue" et en sélectionnant le produit désiré !
 				</div>
 			@endif
-			{!! $links !!}
+			{{ $links = $commands->render( "pagination::bootstrap-4") }}
 		</div>
 	</div>
 @endsection

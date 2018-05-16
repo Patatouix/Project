@@ -1,4 +1,4 @@
-@extends('article.template')
+@extends('template')
 
 @section('contenu')
 	<div class="col-sm-offset-6 col-sm-6">
@@ -28,9 +28,9 @@
 							{!! Form::url('image', null, ['class' => 'form-control', 'placeholder' => 'Image (URL)']) !!}
 							{!! $errors->first('image', '<small class="help-block">:message</small>') !!}
 						</div>
-						<div class="form-group {!! $errors->has('tag') ? 'has-error' : '' !!}">
-							{!! Form::select('id_tag', $select, null, ['class' => 'form-control']) !!}
-							{!! $errors->first('tag', '<small class="help-block">:message</small>') !!}
+						<div class="form-group {!! $errors->has('id_tag') ? 'has-error' : '' !!}">
+							{!! Form::select('id_tag', $select, null, ['placeholder' => 'Alimentation'], ['class' => 'form-control']) !!}
+							{!! $errors->first('id_tag', '<small class="help-block">:message</small>') !!}
 						</div>
 						{!! Form::submit('Envoyer', ['class' => 'btn btn-warning float-right']) !!}
 					{!! Form::close() !!}

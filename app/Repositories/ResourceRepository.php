@@ -32,4 +32,9 @@ abstract class ResourceRepository
 		$this->getById($id)->delete();
 	}
 
+	public function getAll()
+	{
+		return $this->model->all();
+	}
+
 }

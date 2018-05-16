@@ -1,4 +1,4 @@
-@extends('command.template')
+@extends('template')
 
 @section('contenu')
     <div class="col-sm-offset-6 col-sm-6">

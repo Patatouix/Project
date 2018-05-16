@@ -1,11 +1,12 @@
-@extends('user.template')
+@extends('template')
 
 @section('contenu')
     <br>
-    <div class="col-sm-offset-4 col-sm-4">
+    <div class="col-lg-12">
     	@if(session()->has('ok'))
 			<div class="alert alert-success alert-dismissible">{!! session('ok') !!}</div>
 		@endif
+		{!! link_to_route('user.create', 'Ajouter un utilisateur', [], ['class' => 'btn btn-info float-right']) !!}
 		<div class="panel panel-primary">
 			<div class="panel-heading">
 				<h3 class="panel-title">Liste des utilisateurs</h3>
@@ -16,6 +17,8 @@
 						<th>#</th>
 						<th>Nom</th>
 						<th>Mail</th>
+						<th>Rdv</th>
+						<th>Commandes</th>
 						<th></th>
 						<th></th>
 						<th></th>
@@ -27,6 +30,8 @@
 							<td>{!! $user->id !!}</td>
 							<td class="text-primary">{!! $user->name !!}</td>
 							<td>{!! $user->email !!}</td>
+							<td>{!! link_to_route('rdv.index', 'RDV') !!}</td>
+							<td>{!! link_to_route('command.index', 'Commandes') !!}</td>
 							<td>{!! link_to_route('user.show', 'Voir', [$user->id], ['class' => 'btn btn-success btn-block']) !!}</td>
 							<td>{!! link_to_route('user.edit', 'Modifier', [$user->id], ['class' => 'btn btn-warning btn-block']) !!}</td>
 							<td>
@@ -39,7 +44,6 @@
 	  			</tbody>
 			</table>
 		</div>
-		{!! link_to_route('user.create', 'Ajouter un utilisateur', [], ['class' => 'btn btn-info pull-right']) !!}
-		{!! $links !!}
+		{{ $links = $users->render( "pagination::bootstrap-4") }}
 	</div>
 @endsection
