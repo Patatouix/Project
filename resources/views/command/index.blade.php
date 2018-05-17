@@ -39,8 +39,8 @@
 								<td>{{$command->id}}</td>
 								<td>{{$command->user->name}}</td>
 								<td>{{$command->created_at}}</td>
-								<td>{{$command->articles->name}}</td>
-								<td><img src="{{$command->articles->image}}"</td>
+								<td>{{$command->article->name}}</td>
+								<td><img src="{{$command->article->image}}"</td>
 								@if($command->status == 'En attente de validation')
 									<td style="color: red;">{{$command->status}}</td>
 								@else

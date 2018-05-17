@@ -23,7 +23,7 @@ class ArticleTableSeeder extends Seeder {
 				'short_description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
 				'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris dignissim, nisi vitae pharetra tincidunt, ante urna bibendum lacus, in sagittis neque ligula finibus neque. Etiam vel magna pulvinar, lacinia tellus sit amet, aliquet mauris. Integer vitae dictum diam, mollis fermentum sem.',
 				'image' => 'https://www.zoomalia.com/blogz/7/l_la_cat-chow-adulte-special-boule-de-poils-19873.jpg',
-				'id_tag' => rand(1, 10),
+				'tag_id' => rand(1, 10),
 				'created_at' => $date,
 				'updated_at' => $date
 			));

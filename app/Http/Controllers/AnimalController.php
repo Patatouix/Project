@@ -45,14 +45,15 @@ class AnimalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
-        if(Auth::user()->admin) {
+        if(Auth::user()->admin){
             $animals = $this->animalRepository->getAllPaginate($this->nbrPerPage);
             $links = $animals->render();
             return view('animal.index', compact('animals', 'links'));
         }
-        else {
+        else{
             $animals = $this->animalRepository->getAllByUserPaginate(Auth::user()->id, $this->nbrPerPage);
             $links = $animals->render();
             return view('animal.index', compact('animals', 'links'));

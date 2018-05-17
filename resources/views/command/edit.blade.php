@@ -19,7 +19,7 @@
 						<tr>
 							<td>{{$command->user()->first()->name}}</td>
 							<td>{{$command->created_at}}</td>
-							<td>{{$command->articles()->first()->name}}</td>
+							<td>{{$command->article()->first()->name}}</td>
 							<td>
 								<div class="col-sm-12">
 									{!! Form::open(['route' => ['command.update', $command->id], 'method' => 'put', 'class' => 'form-horizontal panel']) !!}

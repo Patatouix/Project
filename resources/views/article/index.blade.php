@@ -53,7 +53,7 @@
 							<td>{{$article->short_description}}</td>
 							<td>{{$article->price}} €</td>
 							<td><img src="{{$article->image}}"></td>
-							<td>{{$article->id_tag}}</td>
+							<td>{{$article->tag_id}}</td>
 							<td>
 								{!! link_to_route('article.show', 'Détails', [$article->id], ['class' => 'btn btn-success btn-block']) !!}
 							</td>
@@ -82,7 +82,7 @@
 					@endforeach
 				</tbody>
 			</table>
-			{{ $links = $articles->render( "pagination::bootstrap-4") }}
+			{{ $links = $articles->render("pagination::bootstrap-4") }}
 		</div>
 	</div>
 @endsection

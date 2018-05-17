@@ -25,7 +25,7 @@ class SpeciesRepository {
 
 	public function getByTagPaginate($tag, $n)
 	{
-		return $this->article->where('id_tag', $tag)->orderBy('articles.price')->paginate($n);	
+		return $this->article->where('tag_id', $tag)->orderBy('articles.price')->paginate($n);	
 	}
 
 	public function store($inputs)

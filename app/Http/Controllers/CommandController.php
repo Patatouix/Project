@@ -35,9 +35,13 @@ class CommandController extends Controller
             return view('command.index', compact('commands', 'links'));
         }
         else {
+
             $commands = $this->commandRepository->getAllByUserPaginate(Auth::user()->id, $this->nbrPerPage);
+
             $links = $commands->render();
+
             return view('command.index', compact('commands', 'links'));
+            
         }
     }
 

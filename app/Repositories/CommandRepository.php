@@ -15,7 +15,8 @@ class CommandRepository {
 
 	private function getAllbyUser($id)
 	{
-		return $this->command->where('id_user', $id)->orderBy('commands.created_at', 'desc');		
+		return $this->command->where('user_id', $id)->orderBy('commands.created_at', 'desc');
+		dd(0);
 	}
 
 	private function getAll()
@@ -35,12 +36,12 @@ class CommandRepository {
 
 	public function getByTagPaginate($tag, $n)
 	{
-		return $this->article->where('id_tag', $tag)->orderBy('articles.price')->paginate($n);	
+		return $this->article->where('tag_id', $tag)->orderBy('articles.price')->paginate($n);	
 	}
 
-	public function store($id_user, $id_article)
+	public function store($user_id, $article_id)
 	{
-		return $this->command->create(array('id_user' => $id_user, 'id_article' => $id_article));
+		return $this->command->create(array('user_id' => $user_id, 'article_id' => $article_id));
 	}
 
 	public function destroy($id)

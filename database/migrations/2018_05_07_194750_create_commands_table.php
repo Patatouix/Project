@@ -18,16 +18,16 @@ class CreateCommandsTable extends Migration
             $table->timestamps();
             $table->string('takeout', 255)->default('Non renseigné');
             $table->string('status', 255)->default('En attente de validation');
-            $table->integer('id_user')->unsigned();
-            $table->integer('id_article')->unsigned();
+            $table->integer('user_id')->unsigned();
+            $table->integer('article_id')->unsigned();
 
-            $table->foreign('id_user')
+            $table->foreign('user_id')
                   ->references('id')
                   ->on('users')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
 
-            $table->foreign('id_article')
+            $table->foreign('article_id')
                   ->references('id')
                   ->on('articles')
                   ->onDelete('restrict')
@@ -43,8 +43,8 @@ class CreateCommandsTable extends Migration
     public function down()
     {
         Schema::table('commands', function(Blueprint $table) {
-            $table->dropForeign('commands_id_user_foreign');
-            $table->dropForeign('commands_id_article_foreign');
+            $table->dropForeign('commands_user_id_foreign');
+            $table->dropForeign('commands_article_id_foreign');
         });
         Schema::drop('commands');
     }

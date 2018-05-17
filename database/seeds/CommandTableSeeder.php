@@ -20,8 +20,8 @@ class CommandTableSeeder extends Seeder {
 			DB::table('commands')->insert(array(
 				'created_at' => $date,
 				'updated_at' => $date,
-				'id_user' => rand(1, 10),
-				'id_article' => rand(1, 50),
+				'user_id' => rand(1, 10),
+				'article_id' => rand(1, 50),
 			));
 		}
 	}

@@ -9,7 +9,7 @@ abstract class ResourceRepository
 
     public function getPaginate($n)
 	{
-		return $this->model->where('admin', 0)->paginate($n);
+		return $this->model->paginate($n);
 	}
 
 	public function store(Array $inputs)

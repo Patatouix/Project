@@ -9,6 +9,8 @@ use App\Repositories\UserRepository;
 
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Auth;
+
 class UserController extends Controller
 {
 
@@ -18,15 +20,21 @@ class UserController extends Controller
 
     public function __construct(UserRepository $userRepository)
     {
+        $this->middleware('auth');
         $this->userRepository = $userRepository;
     }
 
     public function index()
     {
-        $users = $this->userRepository->getPaginate($this->nbrPerPage);
-        $links = $users->render();
+        if(Auth::user()->admin) {
+            $users = $this->userRepository->getPaginate($this->nbrPerPage);
+            $links = $users->render();
+            return view('user.index', compact('users', 'links'));
+        }
+        else {
 
-        return view('user.index', compact('users', 'links'));
+            return redirect()->route('user.show', ['id' => Auth::user()->id]);
+        }
     }
 
     public function create()

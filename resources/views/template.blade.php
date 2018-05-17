@@ -31,7 +31,14 @@
       				{!! link_to('login', 'Se connecter', ['class' => 'btn btn-info pull-right']) !!}
       			</div>
       		@endif
-      		<h2 class="page-header">{!! link_to_route('user.index', 'Utilisateurs') !!}</h2>
+      		@if(Auth::check())
+	      		@if(Auth::user()->admin)
+	      			<h2 class="page-header">{!! link_to_route('user.index', 'Clients') !!}</h2>
+	      		@endif
+	      		@if(!Auth::user()->admin)
+	      			<h2 class="page-header">{!! link_to_route('user.show', 'Profil', Auth::user()->id) !!}</h2>
+	      		@endif
+	      	@endif
         	<h2 class="page-header">{!! link_to_route('article.index', 'Catalogue') !!}</h2>
 	        <h2 class="page-header">{!! link_to_route('command.index', 'Commandes') !!}</h2>
 	        <h2 class="page-header">{!! link_to_route('animal.index', 'Animaux') !!}</h2>

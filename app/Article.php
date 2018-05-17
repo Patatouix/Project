@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Article extends Model
 {
 
-	protected $fillable = ['name', 'description', 'short_description', 'price', 'image', 'id_tag'];
+	protected $fillable = ['name', 'description', 'short_description', 'price', 'image', 'tag_id'];
 
 	public function commands()
 	{
-		return $this->hasMany('App\Command', 'id_article');
+		return $this->hasMany('App\Command');
 	} 
 
 	public function tags()

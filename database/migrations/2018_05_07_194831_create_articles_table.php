@@ -21,8 +21,8 @@ class CreateArticlesTable extends Migration
             $table->string('short_description', 255);
             $table->text('description');
             $table->text('image');
-            $table->integer('id_tag')->unsigned();
-            $table->foreign('id_tag')
+            $table->integer('tag_id')->unsigned();
+            $table->foreign('tag_id')
                     ->references('id')
                     ->on('tags')
                     ->onDelete('restrict')
@@ -38,7 +38,7 @@ class CreateArticlesTable extends Migration
     public function down()
     {
         Schema::table('articles', function(Blueprint $table) {
-            $table->dropForeign('articles_id_tag_foreign');
+            $table->dropForeign('articles_tag_id_foreign');
         });
         Schema::drop('articles');
     }
