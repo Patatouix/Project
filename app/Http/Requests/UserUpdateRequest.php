@@ -25,8 +25,12 @@ class UserUpdateRequest extends FormRequest
     {
         $id = $this->user;
         return [
-            'name' => 'required|max:255|unique:users,name,' . $id,
-            'email' => 'required|email|max:255|unique:users,email,' . $id
+            'name' => 'required|max:255|min:3',
+            'prenom' => 'required|max:255|min:3',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'phone' => 'max:255',
+            'adress' => 'max:255',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ];
     }
 }

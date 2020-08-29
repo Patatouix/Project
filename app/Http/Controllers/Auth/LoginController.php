@@ -27,7 +27,17 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/user';
+    protected function authenticated(Request $request, $user)
+    {
+        if($user->admin)
+        {
+            return redirect('/admin/home');
+        }
+        else
+        {
+            return redirect('/home');
+        }
+    }
 
     /**
      * Create a new controller instance.
@@ -45,6 +55,6 @@ class LoginController extends Controller
 
         $request->session()->invalidate();
 
-        return redirect('/article');
+        return redirect('/');
     }
 }

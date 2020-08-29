@@ -11,17 +11,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(AgeConseilTableSeeder::class);
+        $this->call(AgesTableSeeder::class);
+        $this->call(AnimalEnvironmentTableSeeder::class);
+        $this->call(AnimalFoodTableSeeder::class);
+        $this->call(AnimalRaceTableSeeder::class);
+        $this->call(AnimalRdvTableSeeder::class);
+        $this->call(AnimalsTableSeeder::class);
+        $this->call(ConseilConseiltagTableSeeder::class);
+        $this->call(ConseilEnvironmentTableSeeder::class);
+        $this->call(ConseilEspeceTableSeeder::class);
+        $this->call(ConseilFoodTableSeeder::class);
+        $this->call(ConseilGenderTableSeeder::class);
+        $this->call(ConseilRaceTableSeeder::class);
+        $this->call(ConseilSportTableSeeder::class);
+        $this->call(ConseilsTableSeeder::class);
+        $this->call(ConseilSterilizationTableSeeder::class);
+        $this->call(ConseiltagsTableSeeder::class);
+        $this->call(ConseilWeightTableSeeder::class);
+        $this->call(EnvironmentsTableSeeder::class);
+        $this->call(EspecesTableSeeder::class);
+        $this->call(FoodsTableSeeder::class);
+        $this->call(GendersTableSeeder::class);
+        $this->call(ImagesTableSeeder::class);
+        $this->call(ProduitProduittagTableSeeder::class);
+        $this->call(ProduitReservationTableSeeder::class);
+        $this->call(ProduitsTableSeeder::class);
+        $this->call(ProduittagsTableSeeder::class);
+        $this->call(RacesTableSeeder::class);
+        $this->call(RdvsTableSeeder::class);
+        $this->call(ReservationsTableSeeder::class);
+        $this->call(SportsTableSeeder::class);
+        $this->call(SterilizationsTableSeeder::class);
         $this->call(UsersTableSeeder::class);
-        $this->call(TagTableSeeder::class);
-        $this->call(CommandTableSeeder::class);
-        $this->call(ArticleTableSeeder::class);
-        $this->call(SpeciesTableSeeder::class);
-        $this->call(RaceTableSeeder::class);
-        $this->call(AnimalTableSeeder::class);
-        $this->call(FoodTableSeeder::class);
-        $this->call(SportTableSeeder::class);
-        $this->call(EnvironmentTableSeeder::class);
-        $this->call(VetTableSeeder::class);
-        $this->call(RdvTableSeeder::class);
+        $this->call(VetsTableSeeder::class);
+        $this->call(WeightsTableSeeder::class);
     }
 }

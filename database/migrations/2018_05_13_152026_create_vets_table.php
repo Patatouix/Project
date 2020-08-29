@@ -15,8 +15,16 @@ class CreateVetsTable extends Migration
     {
         Schema::create('vets', function(Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
             $table->string('name', 100);
+            $table->integer('image_id')->unsigned()->default(0);
+
+            $table->foreign('image_id')
+                  ->references('id')
+                  ->on('images')
+                  ->onDelete('restrict')
+                  ->onUpdate('restrict');
+
+            $table->timestamps();
         });
     }
 

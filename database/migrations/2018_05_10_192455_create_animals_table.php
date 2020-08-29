@@ -15,35 +15,31 @@ class CreateAnimalsTable extends Migration
     {
         Schema::create('animals', function(Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
             $table->string('name', 100);
-            $table->float('weight');
-            $table->float('age');
-            $table->boolean('sterilization')->default(false);
-            $table->string('gender', 50);
-            $table->text('image');
+            $table->integer('image_id')->unsigned()->default(0);
             $table->integer('user_id')->unsigned();
-            $table->integer('species_id')->unsigned();
-            $table->integer('environment_id')->unsigned();
+            $table->integer('espece_id')->unsigned();
             $table->integer('sport_id')->unsigned();
-            $table->integer('food_id')->unsigned();
-            $table->integer('race_id')->unsigned();
+            $table->integer('age_id')->unsigned();
+            $table->integer('gender_id')->unsigned();
+            $table->integer('weight_id')->unsigned();
+            $table->integer('sterilization_id')->unsigned();
+
+            $table->foreign('image_id')
+                  ->references('id')
+                  ->on('images')
+                  ->onDelete('restrict')
+                  ->onUpdate('restrict');
 
             $table->foreign('user_id')
                   ->references('id')
-                  ->on('user')
+                  ->on('users')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
 
-            $table->foreign('species_id')
+            $table->foreign('espece_id')
                   ->references('id')
-                  ->on('species')
-                  ->onDelete('restrict')
-                  ->onUpdate('restrict');
-
-            $table->foreign('environment_id')
-                  ->references('id')
-                  ->on('environments')
+                  ->on('especes')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
 
@@ -52,18 +48,32 @@ class CreateAnimalsTable extends Migration
                   ->on('sports')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
-                  
-            $table->foreign('food_id')
+
+            $table->foreign('age_id')
                   ->references('id')
-                  ->on('foods')
+                  ->on('ages')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
 
-            $table->foreign('race_id')
+            $table->foreign('gender_id')
                   ->references('id')
-                  ->on('races')
+                  ->on('genders')
                   ->onDelete('restrict')
-                  ->onUpdate('restrict');         
+                  ->onUpdate('restrict');
+
+            $table->foreign('weight_id')
+                  ->references('id')
+                  ->on('weights')
+                  ->onDelete('restrict')
+                  ->onUpdate('restrict');
+
+            $table->foreign('sterilization_id')
+                  ->references('id')
+                  ->on('sterilizations')
+                  ->onDelete('restrict')
+                  ->onUpdate('restrict');
+
+            $table->timestamps();
         });
     }
 
@@ -75,12 +85,14 @@ class CreateAnimalsTable extends Migration
     public function down()
     {
         Schema::table('animals', function(Blueprint $table) {
+            $table->dropForeign('animals_image_id_foreign');
             $table->dropForeign('animals_user_id_foreign');
-            $table->dropForeign('animals_species_id_foreign');
-            $table->dropForeign('animals_environment_id_foreign');
+            $table->dropForeign('animals_espece_id_foreign');
             $table->dropForeign('animals_sport_id_foreign');
-            $table->dropForeign('animals_food_id_foreign');
-            $table->dropForeign('animals_race_id_foreign');
+            $table->dropForeign('animals_age_id_foreign');
+            $table->dropForeign('animals_gender_id_foreign');
+            $table->dropForeign('animals_weight_id_foreign');
+            $table->dropForeign('animals_sterilization_id_foreign');
         });
         Schema::drop('animals');
     }

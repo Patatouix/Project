@@ -6,40 +6,77 @@ use Illuminate\Database\Eloquent\Model;
 
 class Animal extends Model
 {
-    protected $fillable = ['name', 'weight', 'age', 'sterilization', 'gender', 'user_id', 'species_id', 'environment_id', 'sport_id', 'food_id', 'race_id', 'image'];
-
-    public function species()
-	{
-		return $this->belongsTo('App\Species');
-	}
-
-	public function race()
-	{
-		return $this->belongsTo('App\Race');
-	} 
+	protected $guarded = ['id'];
 
 	public function user()
 	{
 		return $this->belongsTo('App\User');
 	}
 
-	public function food()
+	public function rdvs()
 	{
-		return $this->belongsTo('App\Food');
+		return $this->belongsToMany('App\Rdv')->withTimestamps();
+	}
+
+	public function foods()
+	{
+		return $this->belongsToMany('App\Food');
+	}
+
+	public function races()
+	{
+		return $this->belongsToMany('App\Race');
+	}
+
+	public function environments()
+	{
+		return $this->belongsToMany('App\Environment');
+	}
+
+	public function espece()
+	{
+		return $this->belongsTo('App\Espece');
 	}
 
 	public function sport()
 	{
 		return $this->belongsTo('App\Sport');
-	} 
-
-	public function environment()
-	{
-		return $this->belongsTo('App\Environment');
 	}
 
-	public function rdvs()
+	public function weight()
 	{
-		return $this->hasMany('App\Rdv');
+		return $this->belongsTo('App\Weight');
 	}
+
+	public function age()
+	{
+		return $this->belongsTo('App\Age');
+	}
+
+	public function gender()
+	{
+		return $this->belongsTo('App\Gender');
+	}
+
+	public function sterilization()
+	{
+		return $this->belongsTo('App\Sterilization');
+    }
+
+    public function image()
+    {
+        return $this->belongsTo('App\Image');
+    }
+
+	public function getImgPathAttribute()
+    {
+        if(!empty($this->image))
+        {
+            return asset('images/' . $this->image->name);
+        }
+        else
+        {
+            return null;
+        }
+    }
 }

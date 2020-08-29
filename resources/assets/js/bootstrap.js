@@ -43,11 +43,107 @@ if (token) {
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo'
+import Echo from 'laravel-echo'
 
-// window.Pusher = require('pusher-js');
+window.io = require('socket.io-client');
 
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: 'your-pusher-key'
-// });
+window.Echo = new Echo({
+    broadcaster: 'socket.io',
+    host: window.location.hostname + ':6001'
+});
+
+window.Echo.private('notification.admin')
+    .listen('NotificationAdminEvent', (e) => {
+        toastr.success(e.message, 'Message');
+        $.ajaxSetup({
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "user/session",
+            dataType: "json",
+            data: {'rdv':e.rdv,'reservation':e.reservation},
+            success: function(data) {
+                $('.notifications-total').html(data.total);
+                $('.notifications-rdvs-attente').html(data.rdvsAttente);
+                $('.notifications-rdvs-confirme').html(data.rdvsConfirme);
+                $('.notifications-reservations').html(data.reservations);
+            }
+        })
+    });
+
+window.Echo.private('notification.user.' + window.Laravel.user)
+    .listen('NotificationUserEvent', (e) => {
+        toastr.success(e.message, 'Message');
+        $.ajaxSetup({
+            headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "user/session",
+            dataType: "json",
+            data: {'rdv':e.rdv,'reservation':e.reservation},
+            success: function(data) {
+                $('.notifications-total').html(data.total);
+                $('.notifications-rdvs').html(data.rdvs);
+                $('.notifications-reservations').html(data.reservations);
+            }
+        })
+    });
+
+window.Echo.join('chat')
+    .here((users) => {
+        users.forEach(function(element){
+            if(element.admin) {
+                $('.user_list').append('<li id="user' + element.id + '" style="color:red;"><i class="fas fa-user-cog"></i> ' + element.name + ' ' + element.prenom + ' (admin)</li>');
+            }
+            else {
+                $('.user_list').append('<li id="user' + element.id + '"><i class="fas fa-user"></i> ' + element.name + ' ' + element.prenom + '</li>');
+            }
+        });
+    })
+    .joining((user) => {
+        if(user.admin) {
+            $('.user_list').append('<li id="user' + user.id + '" style="color:red;"><i class="fas fa-user-cog"></i> ' + user.name + ' ' + user.prenom + ' (admin)</li>');
+        }
+        else {
+            $('.user_list').append('<li id="user' + user.id + '"><i class="fas fa-user"></i> ' + user.name + ' ' + user.prenom + '</li>');
+        }
+    })
+    .leaving((user) => {
+        $('#user' + user.id).remove();
+    })
+    .listen('NewMessageEvent', (e) => {
+        if(e.data.admin) {
+            $( "#messages" ).append( "<strong style='color:red;'><i class='fas fa-user-cog'></i> "+e.data.user+" (admin) :</strong><p>"+e.data.message+"</p>" );
+        }
+        else {
+            $( "#messages" ).append( "<strong><i class='fas fa-user'></i> "+e.data.user+" :</strong><p>"+e.data.message+"</p>" );
+        }
+        $('.div-scroll').scrollTop(999999999);
+    });
+
+$(document).on('click', '.send-msg', function(e){
+    e.preventDefault();
+    var token = $("input[name='_token']").val();
+    var user = $("input[name='user']").val();
+    var admin = $("input[name='admin']").val();
+    var msg = $(".msg").val();
+    if(msg != ''){
+        $.ajax({
+            type: "POST",
+            url: "sendmessage",
+            dataType: "json",
+            data: {'_token':token,'message':msg,'user':user,'admin':admin}
+        })
+        .done(function(data){
+            $(".msg").val('');
+        });
+    }else{
+        alert("Message vide");
+    }
+})

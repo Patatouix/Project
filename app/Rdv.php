@@ -6,21 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rdv extends Model
 {
-    protected $fillable = ['request', 'response', 'status', 'user_id', 'animal_id', 'vet_id'];
+	protected $guarded = ['id'];
 
     public function user()
 	{
 		return $this->belongsTo('App\User');
 	}
 
-	public function animal()
+	public function animals()
 	{
-		return $this->belongsTo('App\Animal');
-	} 
+		return $this->belongsToMany('App\Animal')->withTimestamps();
+	}
 
 	public function vet()
 	{
 		return $this->belongsTo('App\Vet');
 	}
-
 }

@@ -3,11 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class Admin
 {
-
     /**
      * Handle an incoming request.
      *
@@ -17,11 +16,16 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        if ($request->user()->admin)
+        if (Auth::user() &&  Auth::user()->admin)
         {
             return $next($request);
         }
-        return new RedirectResponse(url('post'));
-    }
 
+        $path = $request->path();
+
+        //on retire le préfixe '/admin' pour rediriger vers la route équivalente mais non-admin
+        $auth_path = str_replace('admin', '', $path);
+
+        return redirect($auth_path);
+    }
 }

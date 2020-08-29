@@ -15,15 +15,16 @@ class CreateRacesTable extends Migration
     {
         Schema::create('races', function(Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
             $table->string('name', 255);
-            $table->text('advice');
-            $table->integer('species_id')->unsigned();
-            $table->foreign('species_id')
+            $table->integer('espece_id')->unsigned();
+
+            $table->foreign('espece_id')
                     ->references('id')
-                    ->on('species')
+                    ->on('especes')
                     ->onDelete('restrict')
-                    ->onUpdate('restrict'); 
+                    ->onUpdate('restrict');
+
+            $table->timestamps();
         });
     }
 
@@ -35,7 +36,7 @@ class CreateRacesTable extends Migration
     public function down()
     {
         Schema::table('races', function(Blueprint $table) {
-            $table->dropForeign('races_species_id_foreign');
+            $table->dropForeign('races_espece_id_foreign');
         });
         Schema::drop('races');
     }

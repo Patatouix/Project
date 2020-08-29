@@ -11,6 +11,14 @@
 |
 */
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('notification.admin', function ($user) {
+    return (int) $user->admin == 1;
+});
+
+Broadcast::channel('notification.user.{id}', function ($user, $id) {
+    return (int) $user->id == (int) $id;
+});
+
+Broadcast::channel('chat', function ($user) {
+    return ['id' => $user->id, 'admin' => $user->admin, 'name' => $user->name, 'prenom' => $user->prenom];
 });

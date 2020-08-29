@@ -7,6 +7,7 @@ use App\Repositories\RdvRepository;
 use App\Repositories\VetRepository;
 use App\Http\Requests\RdvCreateRequest;
 use App\Http\Requests\RdvUpdateRequest;
+use App\Http\Requests\RdvStatusRequest;
 use Illuminate\Support\Facades\Auth;
 
 class RdvController extends Controller
@@ -15,12 +16,11 @@ class RdvController extends Controller
     protected $rdvRepository;
     protected $vetRepository;
 
-    protected $nbrPerPage = 5;
+    protected $nbrPerPage = 10;
 
     public function __construct(RdvRepository $rdvRepository, VetRepository $vetRepository)
     {
         $this->middleware('auth');
-
         $this->rdvRepository = $rdvRepository;
         $this->vetRepository = $vetRepository;
     }
@@ -31,16 +31,11 @@ class RdvController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->admin) {
-            $rdvs = $this->rdvRepository->getAllPaginate($this->nbrPerPage);
-            $links = $rdvs->render();
-            return view('rdv.index', compact('rdvs', 'links'));
-        }
-        else {
-            $rdvs = $this->rdvRepository->getAllByUserPaginate(Auth::user()->id, $this->nbrPerPage);
-            $links = $rdvs->render();
-            return view('rdv.index', compact('rdvs', 'links'));
-        }
+        $rdvs = $this->rdvRepository->getAllByUserPaginate(Auth::user()->id, $this->nbrPerPage);
+        $links = $rdvs->render();
+        $select = $this->getStatusIdsForSelect();
+
+        return view('rdv.index', compact('rdvs', 'links', 'select'));
     }
 
     /**
@@ -50,19 +45,9 @@ class RdvController extends Controller
      */
     public function create()
     {
-        $vets = $this->vetRepository->getAll();
-        $selectV = [];
-        foreach($vets as $vet){
-            $selectV[$vet->id] = $vet->name;
-        }
+        $selectData = $this->getSelectData();
 
-        $animals = Auth::user()->animals;
-        $selectA = [];
-        foreach($animals as $animal){
-            $selectA[$animal->id] = $animal->name;
-        }
-
-        return view('rdv.create', compact('selectV', 'selectA'));
+        return view('rdv.create')->with('selectData', $selectData);
     }
 
     /**
@@ -73,10 +58,14 @@ class RdvController extends Controller
      */
     public function store(RdvCreateRequest $request)
     {
-        $request->merge(['user_id' => Auth::user()->id]);
-        $user = $this->rdvRepository->store($request->all());
+        $rdv = $this->rdvRepository->store(array('request' => $request->input('request'), 'user_id' => Auth::user()->id,
+            'vet_id' => $request->input('vet_id')));
 
-        return redirect('rdv')->withOk("La demande de RDV a été créée.");
+        $rdv->animals()->attach($request->input('animal_id'));
+
+        broadcast(new \App\Events\NotificationAdminEvent('Nouvelle demande de rendez-vous', $rdv->id, null));
+
+        return redirect('rdv')->withOk("La demande de RDV #". $rdv->id." a été créée.");
     }
 
     /**
@@ -98,9 +87,10 @@ class RdvController extends Controller
      */
     public function edit($id)
     {
+        $selectData = $this->getSelectData();
         $rdv = $this->rdvRepository->getById($id);
 
-        return view('rdv.edit', compact('rdv'));
+        return view('rdv.edit', compact('rdv', 'selectData'));
     }
 
     /**
@@ -112,17 +102,19 @@ class RdvController extends Controller
      */
     public function update(RdvUpdateRequest $request, $id)
     {
-        if(Auth::user()->admin) {
-            $request->merge(['status' => 'Traité']);
-            $this->rdvRepository->update($id, $request->all());
-            return redirect('rdv')->withOk("Le rdv # " . $id . " a été traité.");
-        }
-        else {
-            $request->merge(['status' => 'En attente']);
-            $this->rdvRepository->update($id, $request->all());
-            return redirect('rdv')->withOk("Le rdv # " . $id . " a été modifié.");
-        }
+        $request->merge(['status' => 'En attente']);
+        $this->rdvRepository->update($id, array('request' => $request->input('request'), 'response' => $request->input('response'),
+            'status' => 'En attente', 'user_id' => Auth::user()->id, 'vet_id' => $request->input('vet_id')));
+        $rdv = $this->rdvRepository->getById($id);
+        $rdv->animals()->sync($request->input('animal_id'));
 
+        $rdvs = session()->pull('rdvs', array());
+        unset($rdvs[$id]);
+        session()->put('rdvs', $rdvs);
+
+        broadcast(new \App\Events\NotificationAdminEvent('Nouvelle demande de rendez-vous', $rdv->id, null));
+
+        return redirect('rdv')->withOk("Le rdv # " . $id . " a été modifié.");
     }
 
     /**
@@ -141,6 +133,91 @@ class RdvController extends Controller
     public function confirm($id)
     {
         $this->rdvRepository->update($id, ['status' => 'Confirmé']);
+
+        $rdvs = session()->pull('rdvs', array());
+        unset($rdvs[$id]);
+        session()->put('rdvs', $rdvs);
+
+        broadcast(new \App\Events\NotificationAdminEvent('Demande de rdv confirmée', $id, null));
+
         return redirect('rdv')->withOk("Vous avez confirmé la proposition de rdv #" . $id);
+    }
+
+    public function archive($id)
+    {
+        $this->rdvRepository->update($id, ['status' => 'Archivé']);
+
+        return redirect('rdv')->withOk("Vous avez archivé la demande de rdv #" . $id);
+    }
+
+    public function getSelectData()
+    {
+        $vets = $this->vetRepository->getAll();
+        $vetsSelect = [];
+        foreach($vets as $vet){
+            $vetsSelect[$vet->id] = $vet->name;
+        }
+
+        $animals = Auth::user()->animals;
+        $animalsSelect = [];
+        foreach($animals as $animal){
+            $animalsSelect[$animal->id] = $animal->name;
+        }
+
+        $selectData = array(
+            'vetsSelect' => $vetsSelect,
+            'animalsSelect' => $animalsSelect,
+        );
+
+        return $selectData;
+    }
+
+    public function redirectRdvStatus(RdvStatusRequest $request)
+    {
+        $status_id  = $request->input('status_id');
+
+        return redirect('rdv/status/' . $status_id);
+    }
+
+    public function indexRdvStatus($status_id)
+    {
+        $status = $this->getStatusFromId($status_id);
+        $rdvs = $this->rdvRepository->getByUserByStatusPaginate(Auth::user()->id, $status, $this->nbrPerPage);
+        $links = $rdvs->render();
+        $select = $this->getStatusIdsForSelect();
+
+        return view('rdv.index', compact('rdvs', 'links', 'select', 'status_id'));
+    }
+
+    public function getStatusIdsForSelect()
+    {
+        $select = array(
+            1 => 'En attente',
+            2 => 'Traité',
+            3 => 'Confirmé',
+            4 => 'Archivé'
+        );
+        return $select;
+    }
+
+    public function getStatusFromId($id)
+    {
+        switch($id)
+        {
+            case 1:
+                $status = 'En attente';
+                break;
+            case 2:
+                $status = 'Traité';
+                break;
+            case 3:
+                $status = 'Confirmé';
+                break;
+            case 4:
+                $status = 'Archivé';
+                break;
+        }
+
+        return $status;
     }
 }

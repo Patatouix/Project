@@ -3,61 +3,73 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Repositories\AnimalRepository;
-
-use App\Repositories\SpeciesRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\AgeRepository;
+use App\Repositories\WeightRepository;
+use App\Repositories\GenderRepository;
+use App\Repositories\SterilizationRepository;
+use App\Repositories\EspeceRepository;
 use App\Repositories\RaceRepository;
 use App\Repositories\SportRepository;
 use App\Repositories\FoodRepository;
+use App\Repositories\ConseilRepository;
+use App\Repositories\ImageRepository;
 use App\Repositories\EnvironmentRepository;
-
 use App\Http\Requests\AnimalCreateRequest;
 use App\Http\Requests\AnimalUpdateRequest;
-
 use Illuminate\Support\Facades\Auth;
 
 class AnimalController extends Controller
 {
-
     protected $animalRepository;
-    protected $speciesRepository;
+    protected $userRepository;
+    protected $ageRepository;
+    protected $weightRepository;
+    protected $genderRepository;
+    protected $sterilizationRepository;
+    protected $especeRepository;
     protected $raceRepository;
     protected $foodRepository;
     protected $sportRepository;
+    protected $conseilRepository;
     protected $environmentRepository;
+    protected $imageRepository;
 
-    protected $nbrPerPage = 10;
+    protected $nbrPerPage = 18;
 
-    public function __construct(AnimalRepository $animalRepository, SpeciesRepository $speciesRepository, RaceRepository $raceRepository, SportRepository $sportRepository, FoodRepository $foodRepository, EnvironmentRepository $environmentRepository)
+    public function __construct(AnimalRepository $animalRepository, EspeceRepository $especeRepository,
+        RaceRepository $raceRepository, SportRepository $sportRepository, FoodRepository $foodRepository,
+        EnvironmentRepository $environmentRepository, ConseilRepository $conseilRepository,
+        AgeRepository $ageRepository, WeightRepository $weightRepository, GenderRepository $genderRepository,
+        SterilizationRepository $sterilizationRepository, UserRepository $userRepository, ImageRepository $imageRepository)
     {
         $this->middleware('auth');
-
         $this->animalRepository = $animalRepository;
-        $this->speciesRepository = $speciesRepository;
+        $this->userRepository = $userRepository;
+        $this->ageRepository = $ageRepository;
+        $this->weightRepository = $weightRepository;
+        $this->genderRepository = $genderRepository;
+        $this->sterilizationRepository = $sterilizationRepository;
+        $this->especeRepository = $especeRepository;
         $this->raceRepository = $raceRepository;
         $this->foodRepository = $foodRepository;
         $this->sportRepository = $sportRepository;
         $this->environmentRepository = $environmentRepository;
+        $this->conseilRepository = $conseilRepository;
+        $this->imageRepository = $imageRepository;
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function index()
     {
-        if(Auth::user()->admin){
-            $animals = $this->animalRepository->getAllPaginate($this->nbrPerPage);
-            $links = $animals->render();
-            return view('animal.index', compact('animals', 'links'));
-        }
-        else{
-            $animals = $this->animalRepository->getAllByUserPaginate(Auth::user()->id, $this->nbrPerPage);
-            $links = $animals->render();
-            return view('animal.index', compact('animals', 'links'));
-        }
+        $animals = $this->animalRepository->getAllByUserPaginate(Auth::user()->id, $this->nbrPerPage);
+        $links = $animals->render();
+        return view('animal.index', compact('animals', 'links'));
     }
 
     /**
@@ -66,7 +78,7 @@ class AnimalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    { 
+    {
         $data = $this->getFormAttributes();
         return view('animal.create', compact('data'));
     }
@@ -79,12 +91,30 @@ class AnimalController extends Controller
      */
     public function store(AnimalCreateRequest $request)
     {
-        $this->setSterilization($request);
-        $request->merge(['user_id' => Auth::user()->id]);
+        $attributes = array(
+            'name' => $request->input('name'),
+            'user_id' => Auth::user()->id, 'age_id' => $request->input('age_id'),
+            'weight_id' => $request->input('weight_id'), 'gender_id' => $request->input('gender_id'),
+            'sterilization_id' => $request->input('sterilization_id'), 'espece_id' => $request->input('espece_id'),
+            'sport_id' => $request->input('sport_id')
+        );
 
-        $animal = $this->animalRepository->store($request->all());
+        if($request->hasFile('image'))
+        {
+            //store new image
+            $name = $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path() . '/images/', $name);
+            $image = $this->imageRepository->store(array('name' => $name));
+            $attributes['image_id'] = $image->id;
+        }
 
-        return redirect('animal')->withOk("L'animal " . $animal->name . " a été créé.");
+        $animal = $this->animalRepository->store($attributes);
+
+        $animal->races()->attach($request->input('race_id'));
+        $animal->foods()->attach($request->input('food_id'));
+        $animal->environments()->attach($request->input('environment_id'));
+
+        return redirect('animal')->withOk($animal->name . " a été ajouté à la liste de vos animaux !");
     }
 
     /**
@@ -96,8 +126,9 @@ class AnimalController extends Controller
     public function show($id)
     {
         $animal = $this->animalRepository->getById($id);
+        $conseils = $this->getAnimalConseils($animal);
 
-        return view('animal.show', compact('animal'));
+        return view('animal.show', compact('animal', 'conseils'));
     }
 
     /**
@@ -122,8 +153,35 @@ class AnimalController extends Controller
      */
     public function update(AnimalUpdateRequest $request, $id)
     {
-        $this->setSterilization($request);
-        $this->animalRepository->update($id, $request->all());
+        $animal = $this->animalRepository->getById($id);
+
+        $attributes = array(
+            'name' => $request->input('name'), 'age_id' => $request->input('age_id'),
+            'weight_id' => $request->input('weight_id'), 'gender_id' => $request->input('gender_id'),
+            'sterilization_id' => $request->input('sterilization_id'), 'espece_id' => $request->input('espece_id'),
+            'sport_id' => $request->input('sport_id')
+        );
+
+        if($request->hasFile('image'))
+        {
+            //if user already has image, delete it
+            $image = $animal->image;
+            if($image)
+            {
+                $this->imageRepository->destroy($image->id);
+            }
+            //store new image
+            $name = $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path() . '/images/', $name);
+            $image = $this->imageRepository->store(array('name' => $name));
+            $attributes['image_id'] = $image->id;
+        }
+
+        $this->animalRepository->update($id, $attributes);
+
+        $animal->races()->sync($request->input('race_id'));
+        $animal->foods()->sync($request->input('food_id'));
+        $animal->environments()->sync($request->input('environment_id'));
 
         return redirect('animal')->withOk("L'animal " . $request->input('name') . " a été modifié.");
     }
@@ -138,45 +196,236 @@ class AnimalController extends Controller
     {
         $this->animalRepository->destroy($id);
 
-        return redirect('animal')->withOk("L'animal a été supprimé.");
-    }
-
-    private function setSterilization($request)
-    {
-        if(!$request->has('sterilization'))
-        {
-            $request->merge(['sterilization' => 0]);
-        }       
+        return redirect('animal')->withOk("Le profil a bien été supprimé.");
     }
 
     private function getFormAttributes()
     {
-        $allSpecies = $this->speciesRepository->getAll();
-        $selectSpe = [];
-        foreach($allSpecies as $species){
-            $selectSpe[$species->id] = $species->name;
+        $ages = $this->ageRepository->getAll();
+        $agesSelect = [];
+        foreach($ages as $age){
+            $agesSelect[$age->id] = $age->name;
+        }
+        $weights = $this->weightRepository->getAll();
+        $weightsSelect = [];
+        foreach($weights as $weight){
+            $weightsSelect[$weight->id] = $weight->name;
+        }
+        $genders = $this->genderRepository->getAll();
+        $gendersSelect = [];
+        foreach($genders as $gender){
+            $gendersSelect[$gender->id] = $gender->name;
+        }
+        $sterilizations = $this->sterilizationRepository->getAll();
+        $sterilizationsSelect = [];
+        foreach($sterilizations as $sterilization){
+            $sterilizationsSelect[$sterilization->id] = $sterilization->name;
+        }
+        $especes = $this->especeRepository->getAll();
+        $especesSelect = [];
+        foreach($especes as $espece){
+            $especesSelect[$espece->id] = $espece->name;
         }
         $races = $this->raceRepository->getAll();
-        $selectR = [];
+        $racesSelect = [];
         foreach($races as $race){
-            $selectR[$race->id] = $race->name;
+            $racesSelect[$race->id] = $race->name;
         }
         $foods = $this->foodRepository->getAll();
-        $selectF = [];
+        $foodsSelect = [];
         foreach($foods as $food){
-            $selectF[$food->id] = $food->name;
+            $foodsSelect[$food->id] = $food->name;
         }
         $sports = $this->sportRepository->getAll();
-        $selectSpo = [];
+        $sportsSelect = [];
         foreach($sports as $sport){
-            $selectSpo[$sport->id] = $sport->name;
+            $sportsSelect[$sport->id] = $sport->name;
         }
         $environments = $this->environmentRepository->getAll();
-        $selectE = [];
+        $environmentsSelect = [];
         foreach($environments as $environment){
-            $selectE[$environment->id] = $environment->name;
+            $environmentsSelect[$environment->id] = $environment->name;
         }
 
-        return compact('selectSpe', 'selectR', 'selectF', 'selectSpo', 'selectE');
+        $selectData = array(
+            'agesSelect' => $agesSelect,
+            'weightsSelect' => $weightsSelect,
+            'gendersSelect' => $gendersSelect,
+            'sterilizationsSelect' => $sterilizationsSelect,
+            'especesSelect' => $especesSelect,
+            'racesSelect' => $racesSelect,
+            'foodsSelect' => $foodsSelect,
+            'sportsSelect' => $sportsSelect,
+            'environmentsSelect' => $environmentsSelect,
+            'weightsSelect' => $weightsSelect
+        );
+
+        foreach($selectData as &$select)
+        {
+            $select[0] = 'All';
+            ksort($select);
+        }
+
+        return compact('agesSelect', 'weightsSelect', 'gendersSelect', 'sterilizationsSelect',
+            'especesSelect', 'racesSelect', 'foodsSelect', 'sportsSelect', 'environmentsSelect');
+    }
+
+    private function getAnimalConseils($animal)
+    {
+        $conseilsList = array();
+
+        $conseils = $this->conseilRepository->getAll();
+        foreach($conseils as $conseil)
+        {
+            $valid = true;
+
+            //age
+            $conseilAges = $conseil->ages;
+            if($conseilAges->count() == 0)
+            {
+                $conseilAges = $this->ageRepository->getAll();
+            }
+            $conseilAgesIds = array();
+            foreach($conseilAges as $conseilAge)
+            {
+                $conseilAgesIds[] = $conseilAge->id;
+            }
+            $animalAge = $animal->age->id;
+            $valid = in_array($animalAge, $conseilAgesIds) ? $valid : false;
+
+            //environment
+            $conseilEnvironments = $conseil->environments;
+            if($conseilEnvironments->count() == 0)
+            {
+                $conseilEnvironments = $this->ageRepository->getAll();
+            }
+            $conseilEnvironmentsIds = array();
+            foreach($conseilEnvironments as $conseilEnvironment)
+            {
+                $conseilEnvironmentsIds[] = $conseilEnvironment->id;
+            }
+            $animalEnvironments = $animal->environments;
+            $animalEnvironmentsIds = array();
+            foreach($animalEnvironments as $animalEnvironment)
+            {
+                $animalEnvironmentsIds[] = $animalEnvironment->id;
+            }
+            $valid = (count(array_intersect($animalEnvironmentsIds, $conseilEnvironmentsIds)) > 0) ? $valid : false;
+
+            //espece
+            $conseilEspeces = $conseil->especes;
+            if($conseilEspeces->count() == 0)
+            {
+                $conseilEspeces = $this->ageRepository->getAll();
+            }
+            $conseilEspecesIds = array();
+            foreach($conseilEspeces as $conseilEspece)
+            {
+                $conseilEspecesIds[] = $conseilEspece->id;
+            }
+            $animalEspece = $animal->espece->id;
+            $valid = in_array($animalEspece, $conseilEspecesIds) ? $valid : false;
+
+            //food
+            $conseilFoods = $conseil->foods;
+            if($conseilFoods->count() == 0)
+            {
+                $conseilFoods = $this->ageRepository->getAll();
+            }
+            $conseilFoodsIds = array();
+            foreach($conseilFoods as $conseilFood)
+            {
+                $conseilFoodsIds[] = $conseilFood->id;
+            }
+            $animalFoods = $animal->foods;
+            $animalFoodsIds = array();
+            foreach($animalFoods as $animalFood)
+            {
+                $animalFoodsIds[] = $animalFood->id;
+            }
+            $valid = (count(array_intersect($animalFoodsIds, $conseilFoodsIds)) > 0) ? $valid : false;
+
+            //sexe
+            $conseilGenders = $conseil->genders;
+            if($conseilGenders->count() == 0)
+            {
+                $conseilGenders = $this->ageRepository->getAll();
+            }
+            $conseilGendersIds = array();
+            foreach($conseilGenders as $conseilGender)
+            {
+                $conseilGendersIds[] = $conseilGender->id;
+            }
+            $animalGender = $animal->gender->id;
+            $valid = in_array($animalGender, $conseilGendersIds) ? $valid : false;
+
+            //races
+            $conseilRaces = $conseil->races;
+            if($conseilRaces->count() == 0)
+            {
+                $conseilRaces = $this->ageRepository->getAll();
+            }
+            $conseilRacesIds = array();
+            foreach($conseilRaces as $conseilRace)
+            {
+                $conseilRacesIds[] = $conseilRace->id;
+            }
+            $animalRaces = $animal->races;
+            $animalRacesIds = array();
+            foreach($animalRaces as $animalRace)
+            {
+                $animalRacesIds[] = $animalRace->id;
+            }
+            $valid = (count(array_intersect($animalRacesIds, $conseilRacesIds)) > 0) ?$valid : false;
+
+            //sport
+            $conseilSports = $conseil->sports;
+            if($conseilSports->count() == 0)
+            {
+                $conseilSports = $this->ageRepository->getAll();
+            }
+            $conseilSportsIds = array();
+            foreach($conseilSports as $conseilSport)
+            {
+                $conseilSportsIds[] = $conseilSport->id;
+            }
+            $animalSport = $animal->sport->id;
+            $valid = in_array($animalSport, $conseilSportsIds) ? $valid : false;
+
+            //sterilisation
+            $conseilSterilizations = $conseil->sterilizations;
+            if($conseilSterilizations->count() == 0)
+            {
+                $conseilSterilizations = $this->ageRepository->getAll();
+            }
+            $conseilSterilizationsIds = array();
+            foreach($conseilSterilizations as $conseilSterilization)
+            {
+                $conseilSterilizationsIds[] = $conseilSterilization->id;
+            }
+            $animalSterilization = $animal->sterilization->id;
+            $valid = in_array($animalSterilization, $conseilSterilizationsIds) ? $valid : false;
+
+            //poids
+            $conseilWeights = $conseil->weights;
+            if($conseilWeights->count() == 0)
+            {
+                $conseilWeights = $this->ageRepository->getAll();
+            }
+            $conseilWeightsIds = array();
+            foreach($conseilWeights as $conseilWeight)
+            {
+                $conseilWeightsIds[] = $conseilWeight->id;
+            }
+            $animalWeight = $animal->weight->id;
+            $valid = in_array($animalWeight, $conseilWeightsIds) ? $valid : false;
+
+            if($valid)
+            {
+                $conseilsList[] = $conseil;
+            }
+        }
+
+        return $conseilsList;
     }
 }

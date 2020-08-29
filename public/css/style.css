@@ -1,0 +1,116 @@
+/**
+ * Demo Styles
+ */
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+ul {
+    padding: 0;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  padding-bottom: 6rem;
+  min-height: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.w3-container {
+  margin: 0 auto;
+}
+
+/**
+ * Footer Styles
+ */
+
+.footer1 {
+  position: absolute;
+  right: 0;
+  bottom: 50px;
+  left: 0;
+  padding: 1rem;
+  background-color: #efefef;
+  text-align: center;
+}
+
+.footer2 {
+  position: absolute;
+  right: 0;
+  bottom: 0px;
+  left: 0;
+  height: 50px;
+  background-color: #efefef;
+  text-align: center;
+}
+
+/* navbar for small screens */
+
+@media screen and (max-width: 1050px) and (min-width: 450px){
+    .nav-icon {
+        display: none !important;
+    }
+}
+
+/* animals avatar */
+
+@media screen and (max-width: 700px) {
+  .img-avatar {
+    width:100%;
+    max-width:250px;
+  }
+}
+
+@media screen and (min-width: 700px) {
+  .img-avatar {
+    height:100%;
+    max-height:240px;
+  }
+}
+
+@media screen and (min-width: 1100px) {
+  .img-avatar {
+    height:100%;
+    max-height:350px;
+  }
+}
+
+.portrait {
+    height: 100px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.portrait-big {
+    height: 300px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.link-footer {
+    color: white !important;
+}
+
+.link-footer:hover {
+    color: white !important;
+}
+
+.modal {
+    overflow-y: auto;
+}
+
+.modal-open {
+    overflow: auto;
+}
+

@@ -15,31 +15,25 @@ class CreateRdvsTable extends Migration
     {
         Schema::create('rdvs', function(Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
             $table->string('request', 255);
-            $table->string('response', 255)->nullable();
+            $table->string('response', 255)->default('Pas de réponse de la clinique pour le moment');
             $table->string('status', 100)->default('En attente');
             $table->integer('user_id')->unsigned();
-            $table->integer('animal_id')->unsigned();
             $table->integer('vet_id')->unsigned();
 
             $table->foreign('user_id')
                   ->references('id')
-                  ->on('user')
-                  ->onDelete('restrict')
-                  ->onUpdate('restrict');
-
-            $table->foreign('animal_id')
-                  ->references('id')
-                  ->on('animal')
+                  ->on('users')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
 
             $table->foreign('vet_id')
-                  ->references('vet')
-                  ->on('environments')
+                  ->references('id')
+                  ->on('vets')
                   ->onDelete('restrict')
                   ->onUpdate('restrict');
+
+            $table->timestamps();
         });
     }
 
@@ -52,7 +46,6 @@ class CreateRdvsTable extends Migration
     {
         Schema::table('rdvs', function(Blueprint $table) {
             $table->dropForeign('rdvs_user_id_foreign');
-            $table->dropForeign('rdvs_animal_id_foreign');
             $table->dropForeign('rdvs_vet_id_foreign');
         });
         Schema::drop('rdvs');

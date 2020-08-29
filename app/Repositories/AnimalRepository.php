@@ -4,18 +4,16 @@ namespace App\Repositories;
 
 use App\Animal;
 
-class AnimalRepository {
-
-    protected $animal;
-
+class AnimalRepository extends ResourceRepository
+{
     public function __construct(Animal $animal)
 	{
-		$this->animal = $animal;
+		$this->model = $animal;
 	}
 
 	public function getAll()
 	{
-		return $this->animal->orderBy('animals.name');		
+		return $this->model->orderBy('animals.created_at', 'desc');
 	}
 
 	public function getAllPaginate($n)
@@ -25,22 +23,12 @@ class AnimalRepository {
 
 	private function getAllbyUser($id)
 	{
-		return $this->animal->where('user_id', $id)->orderBy('animals.name');		
-	}
+		return $this->model->where('user_id', $id)->orderBy('animals.name');
+    }
 
 	public function getAllByUserPaginate($id, $n)
 	{
 		return $this->getAllByUser($id)->paginate($n);
-	}
-
-	public function getByTagPaginate($tag, $n)
-	{
-		return $this->article->where('tag_id', $tag)->orderBy('articles.price')->paginate($n);	
-	}
-
-	public function store($inputs)
-	{
-		return $this->animal->create($inputs);
 	}
 
 	public function destroy($id)
@@ -50,12 +38,16 @@ class AnimalRepository {
 
 	public function getById($id)
 	{
-		return $this->animal->findOrFail($id);
+		return $this->model->findOrFail($id);
 	}
 
 	public function update($id, Array $inputs)
 	{
 		$this->getById($id)->update($inputs);
-	}
+    }
 
+    public function getLastRegisteredAnimals()
+    {
+        return $this->model->orderBy('created_at', 'desc')->take(3)->get();
+    }
 }

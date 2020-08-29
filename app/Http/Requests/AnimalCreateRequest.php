@@ -24,16 +24,17 @@ class AnimalCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|max:40',
-            'age' => 'required|numeric',
-            'weight' => 'required|numeric',
-            'gender' => 'required',
-            'species_id' => 'required',
+            'name' => 'required|max:100',
+            'age_id' => 'required',
+            'weight_id' => 'required',
+            'gender_id' => 'required',
+            'sterilization_id' => 'required',
+            'espece_id' => 'required',
             'race_id' => 'required',
             'food_id' => 'required',
             'sport_id' => 'required',
             'environment_id' => 'required',
-            'image' => 'required|URL'
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ];
     }
 }

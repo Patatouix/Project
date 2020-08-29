@@ -9,14 +9,7 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name', 'email', 'password', 'admin'
-    ];
+    protected $guarded = ['id', 'admin'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -29,21 +22,43 @@ class User extends Authenticatable
 
     public function setPasswordAttribute($password)
     {
-    $this->attributes['password'] = bcrypt($password);
+        $this->attributes['password'] = bcrypt($password);
     }
 
-    public function commands() 
+    public function reservations()
     {
-    return $this->hasMany('App\Command');
+        return $this->hasMany('App\Reservation');
     }
 
-    public function rdvs() 
+    public function rdvs()
     {
-    return $this->hasMany('App\Rdv');
+        return $this->hasMany('App\Rdv');
     }
 
-    public function animals() 
+    public function animals()
     {
-    return $this->hasMany('App\Animal');
+        return $this->hasMany('App\Animal');
+    }
+
+    public function image()
+    {
+        return $this->belongsTo('App\Image');
+    }
+
+    public function getImgPathAttribute()
+    {
+        if(!empty($this->image))
+        {
+            return asset('images/' . $this->image->name);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public function canJoinRoom($id)
+    {
+        return $this->id == $id;
     }
 }

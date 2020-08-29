@@ -6,15 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Race extends Model
 {
-    protected $fillable = ['name', 'advice'];
+    protected $guarded = ['id'];
 
-    public function species()
-	{
-		return $this->belongsTo('App\Species');
+	public function conseils()
+    {
+        return $this->belongsToMany('App\Conseil');
+    }
+
+    public function animals()
+    {
+        return $this->belongsToMany('App\Animal');
 	}
 
-	public function animals()
+	public function espece()
 	{
-		return $this->hasMany('App\Animal');
-	} 
+		return $this->belongsTo('App\Espece');
+	}
 }

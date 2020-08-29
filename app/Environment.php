@@ -6,11 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Environment extends Model
 {
-    protected $fillable = ['name', 'advice'];
+	protected $guarded = ['id'];
 
-	public function animals()
-	{
-		return $this->hasMany('App\Animal');
-	}
-	
+	public function conseils()
+    {
+        return $this->belongsToMany('App\Conseil');
+    }
+
+    public function animals()
+    {
+        return $this->belongsToMany('App\Animal');
+    }
 }
